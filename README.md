@@ -7,4 +7,3 @@ make a temlates folder and have the index file in there
 Install the requirements and you are set!
 
 Donations are welcome in Network BEP20 0x32ffa1135a4ff596356df0f327e3ff99247ef2d7
-![Uploading image.png…]()
