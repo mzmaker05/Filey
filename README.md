@@ -6,6 +6,7 @@ Make sure you change your Path to the files you want to administer
 FILES_DIR = '/Change to your location/'  # Change to your folder with Python files
 make a temlates folder and have the index file in there
 Install the requirements and you are set!
+
 ![File system](filey.png)
 
 
