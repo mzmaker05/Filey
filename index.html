@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Manager</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #ddd;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 10px;
+        }
+        h1 {
+            text-align: center;
+            color: #81A1C1;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background-color: #2e2e2e;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #3e3e3e;
+            font-size: 12px;
+        }
+        th {
+            background-color: #3b4252;
+            color: #ECEFF4;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        th a {
+            color: inherit;
+            text-decoration: none;
+        }
+        td {
+            background-color: #2e3440;
+            color: #ECEFF4;
+        }
+        /* Last Modified column with wrapping allowed */
+        .last-modified {
+            font-size: 10px; 
+            word-wrap: break-word;
+        }
+        textarea {
+            width: 80%;
+            border: 1px solid #4C566A;
+            padding: 5px;
+            border-radius: 3px;
+            resize: none;
+            font-family: inherit;
+            background-color: #434C5E;
+            color: #ECEFF4;
+            font-size: 12px;
+        }
+        form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+        button {
+            background-color: #81A1C1;
+            border: none;
+            color: #fff;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #5E81AC;
+        }
+        .actions {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .actions a {
+            background-color: #BF616A;
+            border: none;
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 12px;
+            transition: background-color 0.3s ease;
+        }
+        .actions a:hover {
+            background-color: #D08770;
+        }
+        .color-tag {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .color-green { background-color: green; }
+        .color-yellow { background-color: yellow; }
+        .color-orange { background-color: orange; }
+        .color-red { background-color: red; }
+
+        /* Style for the color dropdown */
+        .color-dropdown {
+            display: none;
+            font-size: 12px;
+            background-color: #434C5E;
+            color: #fff;
+            border: 1px solid #4C566A;
+            padding: 3px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .color-trigger {
+            background-color: #81A1C1;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 3px 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .color-trigger:hover {
+            background-color: #5E81AC;
+        }
+
+        /* Show dropdown when triggered */
+        .show-color-dropdown {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>File Manager</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    <li style="color: {% if category == 'success' %}#A3BE8C{% else %}#BF616A{% endif %}; font-size: 12px;">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table listing all the files -->
+    <table>
+        <thead>
+            <tr>
+     <th><a href="{{ url_for('index', sort_by='name', order='desc' if order == 'asc' else 'asc') }}">File Name</a></th>
+<th><a href="{{ url_for('index', sort_by='size', order='desc' if order == 'asc' else 'asc') }}">File Size (bytes)</a></th>
+<th><a href="{{ url_for('index', sort_by='modified', order='desc' if order == 'asc' else 'asc') }}">Last Modified</a></th>
+
+                <th>Note & Color</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in files %}
+                <tr>
+                    <td>{{ file.name }} <div class="color-tag color-{{ file.color }}"></div></td>
+                    <td>{{ file.size }}</td>
+                    <td class="last-modified">{{ file.modified_readable }}</td> 
+                    <td>
+                        <form action="{{ url_for('update_note', filename=file.name) }}" method="POST">
+                            <textarea name="note" rows="1">{{ file.note }}</textarea>
+
+                            <!-- Hidden Color select dropdown -->
+                            <div>
+                                <button type="button" class="color-trigger" onclick="toggleDropdown(this)">Color</button>
+                                <select name="color" class="color-dropdown">
+                                    <option value="none" {% if file.color == 'none' %}selected{% endif %}>Color</option>
+                                    <option value="green" {% if file.color == 'green' %}selected{% endif %}>Green</option>
+                                    <option value="yellow" {% if file.color == 'yellow' %}selected{% endif %}>Yellow</option>
+                                    <option value="orange" {% if file.color == 'orange' %}selected{% endif %}>Orange</option>
+                                    <option value="red" {% if file.color == 'red' %}selected{% endif %}>Red</option>
+                                </select>
+                            </div>
+
+                            <button type="submit">Save</button>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <form action="{{ url_for('rename_file', filename=file.name) }}" method="POST">
+                                <textarea name="new_name" rows="1" placeholder="New Name"></textarea>
+                                <button type="submit">Rename</button>
+                            </form>
+                            <a href="{{ url_for('delete_file', filename=file.name) }}" style="background-color: #BF616A;">Delete</a>
+                            <a href="{{ url_for('run_file', filename=file.name) }}" style="background-color: #A3BE8C;">Run</a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        // Function to toggle the visibility of the color dropdown
+        function toggleDropdown(trigger) {
+            const dropdown = trigger.nextElementSibling;
+            dropdown.classList.toggle('show-color-dropdown');
+        }
+    </script>
+
+</body>
+</html>
+
