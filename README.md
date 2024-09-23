@@ -1,6 +1,6 @@
 # Filey
 
-Filey is a files ystem designed as a lifehack
+Filey is a files system designed as a lifehack
 Allows you to add notes, color tags and other actiones to your files.
 Make sure you change your Path to the files you want to administer
 FILES_DIR = '/Change to your location/'  # Change to your folder with Python files
