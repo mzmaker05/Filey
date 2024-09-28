@@ -5,7 +5,7 @@ from datetime import datetime
 import subprocess
 
 app = Flask(__name__)
-app.secret_key = 'a1234!'
+app.secret_key = 'Change to yours'
 
 # Define the folder where the Python files are located
 FILES_DIR = '/Change to your location/'  # Change to your folder with Python files
@@ -64,7 +64,7 @@ def index():
     return render_template('index.html', files=files, sort_by=sort_by, order=order)
 
 # Route to delete a file
-@app.route('/home/mz/ai/<filename>')
+@app.route('/Change to your location/<filename>')
 def delete_file(filename):
     try:
         os.remove(os.path.join(FILES_DIR, filename))
